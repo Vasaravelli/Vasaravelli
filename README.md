@@ -1,11 +1,5 @@
 Option Explicit
 
-' Add references to:
-' - Microsoft Scripting Runtime
-' - Microsoft HTML Object Library
-' - Microsoft XML, v6.0
-' - Include JSON converter if necessary
-
 Private Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 
 Sub SearchAndSave()
@@ -15,9 +9,6 @@ Sub SearchAndSave()
 
     Dim lastRow As Long
     lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
-
-    Dim chromePath As String
-    chromePath = "C:\Path\To\Chrome.exe" ' Adjust Chrome path if necessary
 
     Dim searchItem As String
     Dim i As Long
@@ -29,14 +20,16 @@ Sub SearchAndSave()
 End Sub
 
 Sub AutomateChrome(ByVal searchItem As String)
-    ' Define DevTools Protocol connection settings and message sending to interact with Chrome.
-    ' You need to already have Chrome DevTools Protocol configured with your browser.
+    ' Define the path to the Chrome executable file
+    Dim chromePath As String
+    chromePath = "C:\Program Files\Google\Chrome\Application\chrome.exe" ' Adjust the path to where Chrome is installed on your machine
     
+    ' Command to launch Chrome with DevTools Protocol enabled
     Dim chromeCmd As String
-    chromeCmd = " --headless --disable-gpu --remote-debugging-port=9222" ' Ensure no Chrome debugging port option
-    
+    chromeCmd = chromePath & " --remote-debugging-port=9222" ' Ensure no Chrome debugging port option
+
     ' Open Chrome with DevTools Protocol enabled
-    Shell chromePath & chromeCmd, vbNormalFocus
+    Shell chromeCmd, vbNormalFocus
     Sleep 2000 ' Wait for browser to open
 
     ' Insert the code to interact with the page, send the search term to the search box using CDP, and click the search button.
