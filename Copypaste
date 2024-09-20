@@ -1,0 +1,71 @@
+Option Explicit
+
+Sub CopyFilteredData()
+    Dim sourceWB As Workbook
+    Dim templateWB As Workbook
+    Dim sourceSheet As Worksheet
+    Dim templateSheet As Worksheet
+    Dim lastRow As Long
+    Dim filteredRange As Range
+    Dim userName As String
+    Dim sourcePath As String
+    Dim templatePath As String
+    
+    ' Path to the source workbook (the file you want to copy data from)
+    sourcePath = "C:\Path\To\Your\SourceWorkbook.xlsx" ' Adjust this path
+    
+    ' Path to the template workbook (the file you want to paste the data to)
+    templatePath = "C:\Path\To\Your\TemplateWorkbook.xlsx" ' Adjust this path
+    
+    ' Open the source workbook
+    Set sourceWB = Workbooks.Open(sourcePath)
+    
+    ' Define the source worksheet
+    Set sourceSheet = sourceWB.Sheets("Sheet1") ' Adjust this if your sheet name is different
+    
+    ' Open the template workbook
+    Set templateWB = Workbooks.Open(templatePath)
+    
+    ' Define the template worksheet
+    Set templateSheet = templateWB.Sheets("TemplateSheet") ' Adjust this to your template sheet name
+    
+    ' Ask for the user name filter input
+    userName = InputBox("Enter the User Name to filter by:")
+    
+    ' Find the last row of data in the source sheet
+    lastRow = sourceSheet.Cells(sourceSheet.Rows.Count, "A").End(xlUp).Row
+    
+    ' Apply autofilter to the User Name column (assumed to be Column A in this case)
+    With sourceSheet
+        .AutoFilterMode = False ' Turn off any existing filters
+        .Range("A1:G" & lastRow).AutoFilter Field:=1, Criteria1:=userName ' Assuming User Name is in column A, adjust range as per your data
+    End With
+    
+    ' Check if any visible rows exist after filtering
+    On Error Resume Next
+    Set filteredRange = sourceSheet.AutoFilter.Range.SpecialCells(xlCellTypeVisible)
+    On Error GoTo 0
+    
+    If Not filteredRange Is Nothing Then
+        ' Copy specific columns from the filtered range (e.g., Columns B, C, and D)
+        sourceSheet.Range("B2:B" & lastRow).SpecialCells(xlCellTypeVisible).Copy templateSheet.Range("A1") ' Copy Column B to Column A of template
+        sourceSheet.Range("C2:C" & lastRow).SpecialCells(xlCellTypeVisible).Copy templateSheet.Range("B1") ' Copy Column C to Column B of template
+        sourceSheet.Range("D2:D" & lastRow).SpecialCells(xlCellTypeVisible).Copy templateSheet.Range("C1") ' Copy Column D to Column C of template
+        
+        ' Add more columns to copy if necessary
+    Else
+        MsgBox "No data found for the user name: " & userName
+    End If
+    
+    ' Turn off the filter
+    sourceSheet.AutoFilterMode = False
+    
+    ' Save and close the template workbook
+    templateWB.Save
+    templateWB.Close
+    
+    ' Close the source workbook without saving
+    sourceWB.Close SaveChanges:=False
+    
+    MsgBox "Data copied and saved successfully!"
+End Sub
